@@ -6,16 +6,16 @@ from tft_forecasting.model.components.gate_add_norm import AddAndNorm, GateAddNo
 @pytest.fixture
 def input_tensors():
     """Fixture to generate input tensors for testing."""
-    x = torch.randn(5, 10)  # Example tensor
-    y = torch.randn(5, 10)  # Another tensor with the same shape
-    h = torch.randn(5, 20)  # Hidden state tensor
+    x = torch.randn(5, 10)
+    y = torch.randn(5, 10)
+    h = torch.randn(5, 20)
     return x, y, h
 
 
 @pytest.fixture
 def add_and_norm_model():
     """Fixture to create an AddAndNorm model instance."""
-    input_size = 10  # Match the second dimension of input tensors
+    input_size = 10
     return AddAndNorm(input_size)
 
 
@@ -23,7 +23,7 @@ def add_and_norm_model():
 def gate_add_norm_model():
     """Fixture to create a GateAddNorm model instance."""
     input_size = 10
-    hidden_size = 20  # Example hidden size
+    hidden_size = 20
     return GateAddNorm(input_size, hidden_size)
 
 

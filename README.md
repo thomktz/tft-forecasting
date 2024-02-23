@@ -25,8 +25,14 @@ Install the pre-commit hooks
 pre-commit install
 ```
 
-To run any code
+To run the pre-commit hooks
 
 ```bash
-poetry run python <path_to_file>
+pre-commit run --all-files
+```
+
+To run pytests
+
+```bash
+poetry run pytest
 ```

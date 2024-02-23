@@ -7,9 +7,9 @@ from tft_forecasting.model.components.variable_selection import VariableSelectio
 def variable_selection_setup():
     mX = 4  # Number of features
     input_size = 10  # Number of inputs per feature
-    hidden_size = 20  # Size of the hidden layer
-    batch_size = 5  # Number of samples in a batch
-    dropout_rate = 0.1  # Dropout rate
+    hidden_size = 20
+    batch_size = 5
+    dropout_rate = 0.1
 
     # Create an input matrix with shape [batch_size, mX, input_size]
     input_matrix = torch.randn(batch_size, mX, input_size)
