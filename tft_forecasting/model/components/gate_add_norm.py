@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from typing import Optional
 from .glu import GatedLinearUnit
 
 
@@ -18,7 +19,7 @@ class AddAndNorm(nn.Module):
 class GateAddNorm(nn.Module):
     """Gate, Add and Norm layer implementation."""
 
-    def __init__(self, input_size: int, hidden_size: int = None) -> None:
+    def __init__(self, input_size: int, hidden_size: Optional[int] = None) -> None:
         super(GateAddNorm, self).__init__()
         hidden_size = hidden_size or input_size
         self.add_and_norm = AddAndNorm(hidden_size)

@@ -13,6 +13,7 @@ numpy = "^1.26.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.1"
+jupyter = "^1.0.0"
 
 [tool.black]
 line-length = 120

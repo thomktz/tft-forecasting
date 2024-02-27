@@ -1,6 +1,6 @@
 import pytest
 import torch
-from tft_forecasting.model.components.glu import GatedLinearUnit
+from tft_forecasting.model.components import GatedLinearUnit
 
 
 @pytest.fixture

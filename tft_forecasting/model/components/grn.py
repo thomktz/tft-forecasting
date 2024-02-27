@@ -10,7 +10,7 @@ class GatedResidualNetwork(nn.Module):
     """Gated Residual Network (GRN) implementation."""
 
     def __init__(self, input_size: int, hidden_size: int, dropout_rate: float = 0.1) -> None:
-        super(GatedResidualNetwork, self).__init__()
+        super().__init__()
 
         self.elu = nn.ELU()
         self.gate = GateAddNorm(input_size=hidden_size, hidden_size=input_size)
