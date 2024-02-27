@@ -18,7 +18,7 @@ class GatedResidualNetwork(nn.Module):
         self.dropout = nn.Dropout(dropout_rate)
         self.linear1 = nn.Linear(hidden_size, hidden_size)  # Input size hidden_size, output size hidden_size
         self.linear2 = nn.Linear(input_size, hidden_size)  # Input size a, output size hidden_size
-        self.linear3 = nn.Linear(input_size, hidden_size)  # Input size c=a, output size hidden_size
+        self.linear3 = nn.Linear(input_size, hidden_size, bias=False)  # Input size c=a, output size hidden_size
 
     def forward(self, a: torch.Tensor, c: Optional[torch.Tensor] = None) -> torch.Tensor:
         """Forward pass of the GRN."""
