@@ -6,7 +6,6 @@ from typing import Optional
 class GatedLinearUnit(nn.Module):
     """Gated Linear Unit (GLU) implementation."""
 
-
     def __init__(self, input_size: int, hidden_size: Optional[int] = None) -> None:
         super(GatedLinearUnit, self).__init__()
         hidden_size = hidden_size or input_size
