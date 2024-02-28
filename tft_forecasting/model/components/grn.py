@@ -13,6 +13,7 @@ class GatedResidualNetwork(nn.Module):
         super().__init__()
 
         self.elu = nn.ELU()
+        # To add 'a' to eta_1, we need to make sure that the dimensions match
         self.gate = GateAddNorm(input_size=hidden_size, hidden_size=input_size)
 
         self.dropout = nn.Dropout(dropout_rate)
