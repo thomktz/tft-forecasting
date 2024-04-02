@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from .glu import GatedLinearUnit
+from ..utils import TimeDistributed
 
 
 class AddAndNorm(nn.Module):
@@ -18,10 +19,13 @@ class AddAndNorm(nn.Module):
 class GateAddNorm(nn.Module):
     """Gate, Add and Norm layer implementation."""
 
-    def __init__(self, input_size: int) -> None:
+    def __init__(self, input_size: int, time_distributed: bool = True) -> None:
         super(GateAddNorm, self).__init__()
         self.add_and_norm = AddAndNorm(input_size)
-        self.gate = GatedLinearUnit(input_size)
+        if time_distributed:
+            self.gate = TimeDistributed(GatedLinearUnit(input_size))
+        else:
+            self.gate = GatedLinearUnit(input_size)
 
     def forward(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         """Forward pass of the Gate. Apply gate to x."""

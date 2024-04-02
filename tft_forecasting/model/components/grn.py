@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 from typing import Optional
 from .gate_add_norm import GateAddNorm
+from ..utils import TimeDistributed
 
 
 class GatedResidualNetwork(nn.Module):
@@ -14,16 +15,18 @@ class GatedResidualNetwork(nn.Module):
 
         self.elu = nn.ELU()
         # To add 'a' to eta_1, we need to make sure that the dimensions match
-        self.gate = GateAddNorm(input_size=output_size)
+        self.gate = GateAddNorm(input_size=output_size, time_distributed=True)
 
         self.dropout = nn.Dropout(dropout_rate)
-        self.linear1 = nn.Linear(hidden_size, output_size)  # Input size hidden_size, output size hidden_size
-        self.linear2 = nn.Linear(input_size, hidden_size)  # Input size a, output size hidden_size
-        self.linear3 = nn.Linear(input_size, hidden_size)  # Input size c=a, output size hidden_size
+        self.linear1 = TimeDistributed(
+            nn.Linear(hidden_size, output_size)
+        )  # Input size hidden_size, output size hidden_size
+        self.linear2 = TimeDistributed(nn.Linear(input_size, hidden_size))  # Input size a, output size hidden_size
+        self.linear3 = TimeDistributed(nn.Linear(input_size, hidden_size))  # Input size c=a, output size hidden_size
 
         self.map_input = input_size != output_size
         if self.map_input:
-            self.input_mapper = nn.Linear(input_size, output_size)
+            self.input_mapper = TimeDistributed(nn.Linear(input_size, output_size))
 
     def forward(self, a: torch.Tensor, c: Optional[torch.Tensor] = None) -> torch.Tensor:
         """Forward pass of the GRN."""
