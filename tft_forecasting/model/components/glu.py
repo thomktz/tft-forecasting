@@ -1,19 +1,17 @@
 import torch
 import torch.nn as nn
-from typing import Optional
 
 
 class GatedLinearUnit(nn.Module):
     """Gated Linear Unit (GLU) implementation."""
 
-    def __init__(self, input_size: int, hidden_size: Optional[int] = None) -> None:
+    def __init__(self, input_size: int) -> None:
         super(GatedLinearUnit, self).__init__()
-        hidden_size = hidden_size or input_size
-        self.linear1 = nn.Linear(input_size, hidden_size)
-        self.linear2 = nn.Linear(input_size, hidden_size)
+        self.linear1 = nn.Linear(input_size, input_size)
+        self.linear2 = nn.Linear(input_size, input_size)
         self.sigmoid = nn.Sigmoid()
 
-    def init_weights(self):
+    def init_weights(self) -> None:
         """Initialize weights."""
         for n, p in self.named_parameters():
             if "bias" in n:
