@@ -29,7 +29,7 @@ class MultiOutputQuantileRegression(nn.Module):
             optimizer.step()
 
             if epoch % 100 == 0:
-                print(f'Epoch [{epoch+1}/{epochs}], Loss: {loss.item():.4f}')
+                print(f"Epoch [{epoch+1}/{epochs}], Loss: {loss.item():.4f}")
 
     def predict(self, X: torch.Tensor) -> torch.Tensor:
         return self(X)
@@ -41,4 +41,5 @@ class MultiOutputQuantileRegression(nn.Module):
                 error = outputs[:, i] - targets[:, i]
                 total_loss += torch.mean(torch.max((self.quantiles[i] - 1) * error, self.quantiles[i] * error))
             return total_loss / self.num_quantiles
+
         return loss

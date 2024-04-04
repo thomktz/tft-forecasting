@@ -15,12 +15,8 @@ class InterpretableMultiHeadAttention(nn.Module):
         self.d_k = self.d_q = self.d_v = d_model // n_head
 
         self.v_layer = nn.Linear(self.d_model, self.d_v)
-        self.q_layers = nn.ModuleList(
-            [nn.Linear(self.d_model, self.d_q) for _ in range(self.n_head)]
-        )
-        self.k_layers = nn.ModuleList(
-            [nn.Linear(self.d_model, self.d_k) for _ in range(self.n_head)]
-        )
+        self.q_layers = nn.ModuleList([nn.Linear(self.d_model, self.d_q) for _ in range(self.n_head)])
+        self.k_layers = nn.ModuleList([nn.Linear(self.d_model, self.d_k) for _ in range(self.n_head)])
         self.attention = ScaledDotProductAttention()
         self.w_h = nn.Linear(self.d_v, self.d_model, bias=False)
 
@@ -33,11 +29,9 @@ class InterpretableMultiHeadAttention(nn.Module):
             else:
                 torch.nn.init.zeros_(p)
 
-    def forward(self,
-                q: torch.Tensor,
-                k: torch.Tensor,
-                v: torch.Tensor,
-                mask=None) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(
+        self, q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, mask=None
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         heads = []
         attns = []
         # (batch_size, seq_length, d_model)
