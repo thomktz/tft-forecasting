@@ -20,9 +20,6 @@ past_known_covariates = pd.DataFrame(
 )
 
 future_known_covariates = pd.DataFrame(
-    {
-        "future_1": np.random.normal(size=n_days),
-        "future_2": target - np.random.normal(0.4, 0.01, size=n_days),
-    },
+    {"future_1": np.random.normal(size=n_days), "future_2": target - np.random.normal(0.4, 0.01, size=n_days)},
     index=date_range,
 )
