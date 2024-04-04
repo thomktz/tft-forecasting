@@ -21,8 +21,10 @@ class GatedResidualNetwork(nn.Module):
         self.linear1 = TimeDistributed(
             nn.Linear(hidden_size, output_size)
         )  # Input size hidden_size, output size hidden_size
-        self.linear2 = TimeDistributed(nn.Linear(input_size, hidden_size))  # Input size a, output size hidden_size
-        self.linear3 = TimeDistributed(nn.Linear(input_size, hidden_size))  # Input size c=a, output size hidden_size
+        self.linear2 = TimeDistributed(nn.Linear(input_size, hidden_size))
+        # Input size a, output size hidden_size
+        self.linear3 = TimeDistributed(nn.Linear(input_size, hidden_size, bias=False))
+        # Input size c=a, output size hidden_size
 
         self.map_input = input_size != output_size
         if self.map_input:
