@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 
+default_quantiles = [0.1, 0.5, 0.9]
+
 
 class TimeDistributed(nn.Module):
     """
