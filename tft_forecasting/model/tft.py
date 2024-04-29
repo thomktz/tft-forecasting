@@ -48,7 +48,7 @@ class TemporalFusionTransformer(nn.Module):
             batch_first=True,
         )
 
-        self.post_lstm_gan = GateAddNorm(input_size=hidden_size, hidden_size=hidden_size)
+        self.post_lstm_gan = GateAddNorm(input_size=hidden_size, hidden_size=hidden_size,)
 
         self.static_enrichment_grn = GatedResidualNetwork(
             input_size=hidden_size, hidden_size=hidden_size, output_size=hidden_size, dropout_rate=dropout,
@@ -56,6 +56,6 @@ class TemporalFusionTransformer(nn.Module):
 
         self.multihead_attn = InterpretableMultiHeadAttention(d_model=hidden_size, n_head=self.num_attention_heads,)
 
-        self.feed_forward_block = GateAddNorm(input_size=hidden_size, hidden_size=hidden_size)
+        self.feed_forward_block = GateAddNorm(input_size=hidden_size, hidden_size=hidden_size,)
 
-        self.output_layer = MultiOutputQuantileRegression(input_size=hidden_size, quantiles=quantiles)
+        self.output_layer = MultiOutputQuantileRegression(input_size=hidden_size, quantiles=quantiles,)

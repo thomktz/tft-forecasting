@@ -7,7 +7,17 @@ from .scaled_dot_prod_attention import ScaledDotProductAttention
 
 
 class InterpretableMultiHeadAttention(nn.Module):
+    """Maked Interpretable Multi-Head Attention (MIMHA) implementation."""
+
     def __init__(self, n_head: int, d_model: int):
+        """
+        Initializes an instance of the InterpretableMultiHead class.
+
+        Args:
+            n_head (int): The number of attention heads.
+            d_model (int): The dimensionality of the model.
+
+        """
         super().__init__()
 
         self.n_head = n_head
@@ -23,6 +33,12 @@ class InterpretableMultiHeadAttention(nn.Module):
         self.init_weights()
 
     def init_weights(self):
+        """
+        Initializes the weights of the model.
+
+        This method initializes the weights of the model using Xavier uniform initialization for non-bias parameters
+        and zero initialization for bias parameters.
+        """
         for name, p in self.named_parameters():
             if "bias" not in name:
                 torch.nn.init.xavier_uniform_(p)
@@ -32,6 +48,20 @@ class InterpretableMultiHeadAttention(nn.Module):
     def forward(
         self, q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, mask=None
     ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Forward pass of the InterpretableMultiHead module.
+
+        Args:
+            q (torch.Tensor): The query tensor of shape (batch_size, seq_length, d_model).
+            k (torch.Tensor): The key tensor of shape (batch_size, seq_length, d_model).
+            v (torch.Tensor): The value tensor of shape (batch_size, seq_length, d_model).
+            mask (torch.Tensor, optional): The attention mask tensor of shape (batch_size, seq_length, seq_length).
+                Defaults to None.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: A tuple containing the output tensor of shape (batch_size, d_model)
+            and the attention tensor of shape (batch_size, n_head, seq_length, seq_length).
+        """
         heads = []
         attns = []
         # (batch_size, seq_length, d_model)

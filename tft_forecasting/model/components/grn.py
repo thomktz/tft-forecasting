@@ -11,6 +11,15 @@ class GatedResidualNetwork(nn.Module):
     """Gated Residual Network (GRN) implementation."""
 
     def __init__(self, input_size: int, hidden_size: int, output_size: int, dropout_rate: float = 0.1) -> None:
+        """
+        Initializes the GRN (Gated Recurrent Network) component.
+
+        Args:
+            input_size (int): The size of the input.
+            hidden_size (int): The size of the hidden layer.
+            output_size (int): The size of the output.
+            dropout_rate (float, optional): The dropout rate. Defaults to 0.1.
+        """
         super().__init__()
 
         self.elu = nn.ELU()
@@ -31,7 +40,17 @@ class GatedResidualNetwork(nn.Module):
             self.input_mapper = TimeDistributed(nn.Linear(input_size, output_size))
 
     def forward(self, a: torch.Tensor, c: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """Forward pass of the GRN."""
+        """
+        Forward pass of the GRN component.
+
+        Args:
+            a (torch.Tensor): The input tensor.
+            c (Optional[torch.Tensor]): The optional context tensor.
+
+        Returns:
+            torch.Tensor: The output tensor.
+
+        """
         # Ensure that 'a' and 'eta_1' have the same dimensions
         residual = self.input_mapper(a) if self.map_input else a
 
