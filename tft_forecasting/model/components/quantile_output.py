@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from typing import List, Callable, Optional
 from torch.optim.optimizer import Optimizer
-from utils import default_quantiles
+from ..utils import default_quantiles
 
 
 class MultiOutputQuantileRegression(nn.Module):

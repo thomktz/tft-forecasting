@@ -16,11 +16,11 @@ class VariableSelection(nn.Module):
         Parameters
         ----------
         mX: int
-            Number of features (interated as 'j' in the paper)
+            Number of inputs
         input_size: int
-            Number of inputs (iterated as 'i' in the paper)
+            Number of features
         hidden_size: int
-            Size of the hidden layer ('d_model' in the paper)
+            Size of the hidden layer
         dropout_rate: float
             Dropout rate
         """
@@ -43,12 +43,8 @@ class VariableSelection(nn.Module):
         flattened = input_matrix.view(input_matrix.size(0), -1)
         weights = self.softmax(self.weights_grn(flattened, c=c))
 
-        print("flattened", flattened.shape)
-        print("weights", weights.shape)
-
         # Apply each GRN to the corresponding slice of input_matrix and multiply by weights
         weighted_values = [weights[:, i : (i + 1)] * grn(input_matrix[:, i]) for i, grn in enumerate(self.grns)]
 
         output = torch.stack(weighted_values, dim=1).sum(dim=1)
-        print("output", output.shape)
         return output

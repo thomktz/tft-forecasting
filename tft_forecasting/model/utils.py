@@ -30,12 +30,15 @@ class TimeDistributed(nn.Module):
         """Forward pass of the TimeDistributed module."""
         # in case the incoming tensor is a two-dimensional tensor - infer no temporal information is involved,
         # and simply apply the module
+        print("Input shape: ", x.size())
         if len(x.size()) <= 2:
             return self.module(x)
 
         # Squash samples and time-steps into a single axis
         x_reshape = x.contiguous().view(-1, x.size(-1))  # (samples * time-steps, input_size)
         # apply the module on each time-step separately
+        print("Reshaped input shape: ", x_reshape.size())
+        print()
         y = self.module(x_reshape)
 
         # reshaping the module output as sequential tensor (if required)

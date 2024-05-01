@@ -5,21 +5,21 @@ from tft_forecasting.model.components.variable_selection import VariableSelectio
 
 @pytest.fixture
 def variable_selection_setup():
-    mX = 4  # Number of features
-    input_size = 10  # Number of inputs per feature
+    mX = 4
     hidden_size = 20
     batch_size = 5
     dropout_rate = 0.1
+    time_steps = 7
 
-    # Create an input matrix with shape [batch_size, mX, input_size]
-    input_matrix = torch.randn(batch_size, mX, input_size)
+    # Create an input matrix with shape [batch_size, time_steps, mX]
+    input_matrix = torch.randn(batch_size, time_steps, mX)
     # Initialize the VariableSelection model
-    model = VariableSelection(mX, input_size, hidden_size, dropout_rate)
-    return input_matrix, model, batch_size, input_size, hidden_size
+    model = VariableSelection(mX, time_steps, hidden_size, dropout_rate)
+    return input_matrix, model, batch_size, time_steps, hidden_size
 
 
 def test_variable_selection_forward(variable_selection_setup):
-    input_matrix, model, batch_size, input_size, hidden_size = variable_selection_setup
+    input_matrix, model, batch_size, time_steps, hidden_size = variable_selection_setup
     # Perform the forward pass
     output = model(input_matrix)
     # Verify the output shape
