@@ -9,7 +9,9 @@ from tft_forecasting.model.components.grn import GatedResidualNetwork
 class VariableSelection(nn.Module):
     """Variable selection component to learn the importance of each feature."""
 
-    def __init__(self, mX: int, input_size: int, hidden_size: int, dropout_rate: float = 0.1) -> None:
+    def __init__(
+        self, mX: int, input_size: int, hidden_size: int, dropout_rate: float = 0.1, context_size: Optional[int] = None
+    ) -> None:
         """
         Initialize the variable selection component.
 
@@ -26,7 +28,9 @@ class VariableSelection(nn.Module):
         """
         super(VariableSelection, self).__init__()
         self.softmax = nn.Softmax(dim=1)
-        self.weights_grn = GatedResidualNetwork(input_size * mX, hidden_size, mX, dropout_rate)
+        self.weights_grn = GatedResidualNetwork(
+            input_size * mX, hidden_size, mX, dropout_rate, context_size=context_size
+        )
         self.grns = nn.ModuleList(
             [GatedResidualNetwork(input_size, hidden_size, hidden_size, dropout_rate) for _ in range(mX)]
         )

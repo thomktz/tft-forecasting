@@ -1,1 +1,1 @@
-from .model.tft import TemporalFusionTransformer
+from .model.tft import TFT
