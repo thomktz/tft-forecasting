@@ -22,7 +22,7 @@ class TFT(nn.Module):
         Number of static variables
     encode_length: int
         Length of the encoder
-    categorical_covariates: int
+    n_past_categorical_covariates: int
         Number of time varying categorical variables
     n_past_covariates: int
         Number of time varying real variables in the encoder
@@ -49,16 +49,18 @@ class TFT(nn.Module):
     def __init__(
         self,
         batch_size: int,
-        encode_length: int,
         static_variables: int,
-        categorical_covariates: int,
+        n_past_categorical_covariates: int,
         n_past_covariates: int,
         n_future_covariates: int,
         num_masked_series: int,
         hidden_size: int = 32,
         lstm_layers: int = 2,
         dropout: float = 0.05,
+        static_embedding_vocab_size: int = 32,
+        time_varying_embedding_vocab_size: int = 32,
         embedding_dim: int = 8,
+        encode_length: int = 168,
         attn_heads: int = 8,
         quantiles: list[float] = default_quantiles,
         seq_length: int = 336,
@@ -68,8 +70,7 @@ class TFT(nn.Module):
         self.device = device
         self.batch_size = batch_size
         self.static_variables = static_variables
-        self.encode_length = encode_length
-        self.categorical_covariates = categorical_covariates
+        self.n_past_categorical_covariates = n_past_categorical_covariates
         self.n_past_covariates = n_past_covariates
         self.n_future_covariates = n_future_covariates
         self.num_input_series_to_mask = num_masked_series
@@ -77,6 +78,7 @@ class TFT(nn.Module):
         self.lstm_layers = lstm_layers
         self.dropout = dropout
         self.embedding_dim = embedding_dim
+        self.encode_length = encode_length
         self.attn_heads = attn_heads
         self.quantiles = quantiles
         self.seq_length = seq_length
@@ -84,26 +86,31 @@ class TFT(nn.Module):
         self.num_quantiles = len(quantiles)
 
         self.static_embedding_layers = nn.ModuleList(
-            [nn.Embedding(embedding_dim, embedding_dim).to(self.device) for _ in range(self.static_variables)]
+            [
+                nn.Embedding(static_embedding_vocab_size, embedding_dim).to(self.device)
+                for _ in range(self.static_variables)
+            ]
         )
 
         self.time_varying_embedding_layers = nn.ModuleList(
             [
-                TimeDistributed(nn.Embedding(embedding_dim, embedding_dim), batch_first=True).to(self.device)
-                for _ in range(self.categorical_covariates)
+                TimeDistributed(nn.Embedding(time_varying_embedding_vocab_size, embedding_dim), batch_first=True).to(
+                    self.device
+                )
+                for _ in range(self.n_past_categorical_covariates)
             ]
         )
 
         self.time_varying_linear_layers = nn.ModuleList(
             [
                 TimeDistributed(nn.Linear(1, embedding_dim), batch_first=True).to(self.device)
-                for _ in range(self.n_past_covariates)
+                for _ in range(self.n_past_covariates + self.n_future_covariates)
             ]
         )
 
         self.encoder_variable_selection = VariableSelection(
             input_size=embedding_dim,
-            mX=(n_past_covariates + categorical_covariates),
+            mX=(n_past_covariates + n_past_categorical_covariates),
             hidden_size=hidden_size,
             dropout_rate=dropout,
             context_size=embedding_dim * static_variables,
@@ -111,15 +118,19 @@ class TFT(nn.Module):
 
         self.decoder_variable_selection = VariableSelection(
             input_size=embedding_dim,
-            mX=(n_future_covariates + categorical_covariates),
+            mX=(n_future_covariates + n_past_categorical_covariates),
             hidden_size=hidden_size,
             dropout_rate=dropout,
             context_size=embedding_dim * static_variables,
         )
 
-        self.lstm_encoder_input_size = embedding_dim * (n_past_covariates + categorical_covariates + static_variables)
+        self.lstm_encoder_input_size = embedding_dim * (
+            n_past_covariates + n_past_categorical_covariates + static_variables
+        )
 
-        self.lstm_decoder_input_size = embedding_dim * (n_future_covariates + categorical_covariates + static_variables)
+        self.lstm_decoder_input_size = embedding_dim * (
+            n_future_covariates + n_past_categorical_covariates + static_variables
+        )
 
         self.lstm_encoder = nn.LSTM(
             input_size=hidden_size,
@@ -181,21 +192,22 @@ class TFT(nn.Module):
                 time_varying_real_vectors.append(emb)
             time_varying_real_embedding = torch.cat(time_varying_real_vectors, dim=2)
 
-        time_varying_categoical_vectors = []
-        for i in range(self.time_varying_categoical_variables):
+        time_varying_categorical_vectors = []
+
+        for i in range(self.n_past_categorical_covariates):
             emb = self.time_varying_embedding_layers[i](
                 x[:, :, self.n_past_covariates + i].view(x.size(0), -1, 1).long()
             )
-            time_varying_categoical_vectors.append(emb)
-        time_varying_categoical_embedding = torch.cat(time_varying_categoical_vectors, dim=2)
+            time_varying_categorical_vectors.append(emb)
+        time_varying_categorical_embedding = torch.cat(time_varying_categorical_vectors, dim=2)
 
-        static_embedding = torch.cat(time_varying_categoical_embedding.size(1) * [static_embedding])
+        static_embedding = torch.cat(time_varying_categorical_embedding.size(1) * [static_embedding])
         static_embedding = static_embedding.view(
-            time_varying_categoical_embedding.size(0), time_varying_categoical_embedding.size(1), -1
+            time_varying_categorical_embedding.size(0), time_varying_categorical_embedding.size(1), -1
         )
 
         embeddings = torch.cat(
-            [static_embedding, time_varying_categoical_embedding, time_varying_real_embedding], dim=2
+            [static_embedding, time_varying_categorical_embedding, time_varying_real_embedding], dim=2
         )
 
         return embeddings.view(-1, x.size(0), embeddings.size(2))
@@ -222,7 +234,9 @@ class TFT(nn.Module):
         """Input order: static, time_varying_categorical, time_varying_real."""
         embedding_vectors = []
         for i in range(self.static_variables):
-            emb = self.static_embedding_layers[i](x["identifier"][:, 0, i].long().to(self.device))
+            # (batch, time, num_static) -> (batch, num_static)
+            identifier = x["identifier"][:, 0, i].long().to(self.device)
+            emb = self.static_embedding_layers[i](identifier)
             embedding_vectors.append(emb)
 
         static_embedding = torch.cat(embedding_vectors, dim=1)

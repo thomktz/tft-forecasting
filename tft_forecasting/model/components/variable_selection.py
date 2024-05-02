@@ -26,7 +26,11 @@ class VariableSelection(nn.Module):
         dropout_rate: float
             Dropout rate
         """
-        super(VariableSelection, self).__init__()
+        super().__init__()
+
+        self.mX = mX
+        self.input_size = input_size
+
         self.softmax = nn.Softmax(dim=1)
         self.weights_grn = GatedResidualNetwork(
             input_size * mX, hidden_size, mX, dropout_rate, context_size=context_size
@@ -44,11 +48,12 @@ class VariableSelection(nn.Module):
         input_matrix: torch.Tensor[batch_size, mX, input_size]
             Input matrix
         """
-        flattened = input_matrix.view(input_matrix.size(0), -1)
-        weights = self.softmax(self.weights_grn(flattened, c=c))
+        weights = self.softmax(self.weights_grn(input_matrix, c=c)).unsqueeze(2)
 
-        # Apply each GRN to the corresponding slice of input_matrix and multiply by weights
-        weighted_values = [weights[:, i : (i + 1)] * grn(input_matrix[:, i]) for i, grn in enumerate(self.grns)]
+        var_outputs = []
+        for i in range(self.mX):
+            var_outputs.append(self.grns[i](input_matrix[:, :, (i * self.input_size) : (i + 1) * self.input_size]))
 
-        output = torch.stack(weighted_values, dim=1).sum(dim=1)
-        return output
+        outputs = (torch.stack(var_outputs, axis=-1) * weights).sum(axis=-1)
+
+        return outputs, weights
