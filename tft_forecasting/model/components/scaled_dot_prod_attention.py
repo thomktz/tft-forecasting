@@ -5,12 +5,15 @@ import torch.nn as nn
 
 
 class ScaledDotProductAttention(nn.Module):
+    """Scaled Dot Product Attention component for the model."""
+
     def __init__(self, scale: bool = True):
         super().__init__()
         self.softmax = nn.Softmax(dim=2)
         self.scale = scale
 
     def forward(self, q, k, v, mask=None):
+        """Forward pass for the model."""
         attn = torch.bmm(q, k.permute(0, 2, 1))  # query-key overlap
 
         if self.scale:

@@ -2,13 +2,19 @@
 
 import torch
 import torch.nn as nn
+from typing import List, Callable, Optional
 from torch.optim.optimizer import Optimizer
-from typing import List, Callable
+from ..utils import default_quantiles
 
 
 class MultiOutputQuantileRegression(nn.Module):
-    def __init__(self, input_size: int, quantiles: List[float] = [0.1, 0.5, 0.9]):
+    """Multi Output Quantile Regression model implementation."""
+
+    def __init__(self, input_size: int, quantiles: Optional[List[float]] = None):
         super(MultiOutputQuantileRegression, self).__init__()
+
+        quantiles = quantiles if quantiles is not None else default_quantiles
+
         self.input_size = input_size
         self.quantiles = quantiles
         self.num_quantiles = len(quantiles)
@@ -16,9 +22,11 @@ class MultiOutputQuantileRegression(nn.Module):
         self.fc = nn.Linear(input_size, self.num_quantiles)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Forward pass for the model."""
         return self.fc(x)
 
     def fit(self, X: torch.Tensor, Y: torch.Tensor, optimizer: Optimizer, epochs: int = 100) -> None:
+        """Fit the model to the data."""
         criterion = self._quantile_loss()
 
         for epoch in range(epochs):
@@ -32,9 +40,12 @@ class MultiOutputQuantileRegression(nn.Module):
                 print(f"Epoch [{epoch+1}/{epochs}], Loss: {loss.item():.4f}")
 
     def predict(self, X: torch.Tensor) -> torch.Tensor:
+        """Predict the output for the given input."""
         return self(X)
 
     def _quantile_loss(self) -> Callable[[torch.Tensor, torch.Tensor], torch.Tensor]:
+        """Quantile loss function."""
+
         def loss(outputs: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
             total_loss = 0
             for i in range(self.num_quantiles):

@@ -7,6 +7,8 @@ from .scaled_dot_prod_attention import ScaledDotProductAttention
 
 
 class InterpretableMultiHeadAttention(nn.Module):
+    """Interpretable Multihead Attention component for the model."""
+
     def __init__(self, n_head: int, d_model: int):
         super().__init__()
 
@@ -23,6 +25,7 @@ class InterpretableMultiHeadAttention(nn.Module):
         self.init_weights()
 
     def init_weights(self):
+        """Initialize weights for the model."""
         for name, p in self.named_parameters():
             if "bias" not in name:
                 torch.nn.init.xavier_uniform_(p)
@@ -32,6 +35,20 @@ class InterpretableMultiHeadAttention(nn.Module):
     def forward(
         self, q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, mask=None
     ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Forward pass for the model.
+
+        Parameters
+        ----------
+        q: torch.Tensor
+            Query tensor.
+        k: torch.Tensor
+            Key tensor.
+        v: torch.Tensor
+            Value tensor.
+        mask: torch.Tensor
+            Mask tensor.
+        """
         heads = []
         attns = []
         # (batch_size, seq_length, d_model)
