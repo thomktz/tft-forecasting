@@ -1,4 +1,4 @@
-# tft-forecasting
+# TFT Forecasting
 
 Temporal Fusion Transformers for Interpretable Multi-horizon Time Series Forecasting
 
@@ -7,32 +7,4 @@ git clone https://github.com/thomktz/tft-forecasting
 cd tft-forecasting
 ```
 
-Install poetry and pre-commit
-
-```bash
-pip install poetry pre-commit
-```
-
-Install dependencies
-
-```bash
-poetry install
-```
-
-Install the pre-commit hooks
-
-```bash
-pre-commit install
-```
-
-To run the pre-commit hooks
-
-```bash
-pre-commit run --all-files
-```
-
-To run pytests
-
-```bash
-poetry run pytest
-```
+Notebook: [Google Colab](https://colab.research.google.com/drive/1KT7L-H8jghmCq-J0IojSSrI--5DKLBD-?usp=sharing)
